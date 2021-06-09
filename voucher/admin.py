@@ -4,7 +4,7 @@ from .models import Portal, Roll, Voucher
 
 class VoucherInline(admin.TabularInline):
     model = Voucher
-#    readonly_fields = ('code', 'date_printed', 'printed_by')
+    readonly_fields = ('code', 'date_printed', 'printed_by')
     extra = 0
 
 class PortalAdmin(admin.ModelAdmin):

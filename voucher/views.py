@@ -6,7 +6,10 @@ import datetime
 from django.utils import timezone
 from urllib.parse import urlencode
 from .models import Portal, Roll, Voucher
-from .forms import PrintSettingsForm
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
+
 
 
 
@@ -18,13 +21,28 @@ def redirect_params(url, params=None):
     return response
 
 
-
-class PortalListView(generic.ListView):
+class PortalListView(LoginRequiredMixin, generic.ListView):
     model = Portal
 
+    def get_queryset(self):
+        # Limit only to active portals
+        qs = super().get_queryset()
+        qs = qs.filter(active=True)
 
+        # Hide portals where the user has no groups that are allowed printing.
+        groups = self.request.user.groups.values_list('id', flat=True)
+        qs = qs.filter(allow_printing__in=groups)
+
+        return qs
+
+
+@login_required
 def printselection(request, portal_id):
-    portal = get_object_or_404(Portal, pk=portal_id)
+    
+    # Make sure the portal is active and user has access.
+    groups = request.user.groups.values_list('id', flat=True)
+    portal = get_object_or_404(Portal, pk=portal_id,active=True, allow_printing__in=groups)
+
 
     if request.method == 'POST':
         printer_type = request.POST['printer_type']
@@ -48,20 +66,22 @@ def printselection(request, portal_id):
         vouchers = list(vouchers.values_list('id', flat=True)[:quantity])
 
         # Mark these vouchers as printed
-        # FIXME also add user who printed them when authentication is setup
-        Voucher.objects.filter(id__in=vouchers).update(date_printed=timezone.now())
+        Voucher.objects.filter(id__in=vouchers).update(date_printed=timezone.now(),printed_by=request.user.get_username())
 
         return redirect_params(reverse('voucher:print', kwargs={'portal_id': portal_id, 'roll_id': roll_id, 'printer_type': printer_type}), {'v': vouchers})
     else:
         return render(request, 'voucher/print_selection.html', {'portal':portal,'quantity':5})
 
+@login_required
 def print(request, portal_id, roll_id, printer_type):
-    portal = get_object_or_404(Portal, pk=portal_id)
+    # Make sure the portal is active and user has access.
+    groups = request.user.groups.values_list('id', flat=True)
+    portal = get_object_or_404(Portal, pk=portal_id,active=True, allow_printing__in=groups)
+
     roll = get_object_or_404(Roll, pk=roll_id)
     
     # Retrieve the vouchers by id, and verify they are ok to print (someone could have altered GET string)
     # Make sure they match the roll, and were marked as printed within the last hour
-    # FIXME - by the current user
     voucherlist = request.GET.getlist('v')
     vouchers = Voucher.objects.filter(id__in=voucherlist)
     vouchers = vouchers.filter(roll=roll.id)
