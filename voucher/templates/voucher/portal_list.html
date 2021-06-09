@@ -1,0 +1,20 @@
+{% extends "voucher/base.html" %}
+
+{% block title %}Portal Selection{% endblock %}
+
+{% block content%}
+
+
+<h1>Choose Portal:</h1>
+{% if object_list %}
+    <ul>
+        {% for portal in object_list %}
+            <li><a href="{% url 'voucher:portal' portal.id %}">{{portal.name}}</a></li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No portals are configured or you do not have permissions to any portal.</p>
+{% endif %}
+
+
+{% endblock %}

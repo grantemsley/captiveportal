@@ -1,0 +1,185 @@
+{% extends "voucher/base.html" %}
+{% block title %}Voucher Print{% endblock %}
+
+
+{% block head %}
+{% if printer_type == 'address_labels' %}
+<script type="text/javascript">
+(function()
+{
+
+    // Note: Dymo has a bug where you need to have a space between the <Color blah> and </Color> tags or it throws an error.
+    var labelxml = `{% include "voucher/label.xml" %}`;
+
+    var label = dymo.label.framework.openLabelXml(labelxml);
+    label.setObjectText("PortalName", "{{ portal.name }}");
+    label.setObjectText("SSID", "{{ portal.ssid }}");
+    label.setObjectText("PSK", "{{ portal.psk }}");
+    label.setObjectText("TimeLimit", "{{ roll.time_limit }}");
+    label.setObjectText("VoucherCode", "CODE INSERTED HERE");
+
+    // QR codes are in the format: WIFI:T:WPA;S:<ssid>;P:<PSK>;;
+    // see https://github.com/zxing/zxing/wiki/Barcode-Contents#wi-fi-network-config-android-ios-11 for details
+    label.setObjectText("QRCode", "WIFI:T:WPA;S:{{portal.ssid}};P:{{portal.psk}};;");
+
+    // called when the document completly loaded
+    function onload()
+    {
+        var printButton = document.getElementById('printButton');
+        var printersSelect = document.getElementById('printersSelect');
+        var printPreviewButton = document.getElementById('printPreviewButton');
+
+        // Generates label preview and updates corresponend <img> element
+        // Note: this does not work in IE 6 & 7 because they don't support data urls
+        // if you want previews in IE 6 & 7 you have to do it on the server side
+        function updatePreview() {
+            if (!label)
+                return;
+
+            var pngData = label.render();
+
+            var labelImage = document.getElementById('labelImage');
+            labelImage.src = "data:image/png;base64," + pngData;
+        }
+
+        // loads all supported printers into a combo box 
+        function loadPrinters() {
+            var printers = dymo.label.framework.getPrinters();
+            if (printers.length == 0) {
+                alert("No DYMO printers are installed. Install DYMO printers.");
+                return;
+            }
+
+            for (var i = 0; i < printers.length; i++) {
+                var printer = printers[i];
+                if (printer.printerType == "LabelWriterPrinter") {
+                    var printerName = printer.name;
+
+                    var option = document.createElement('option');
+                    option.value = printerName;
+                    option.appendChild(document.createTextNode(printerName));
+                    printersSelect.appendChild(option);
+                }
+            }
+        }
+
+        // prints the label
+        printButton.onclick = function()
+        {
+            try
+            {
+
+                // create label set to print data
+                var labelSetBuilder = new dymo.label.framework.LabelSetBuilder();
+
+                // Get all the child elements of voucher_codes and add them to the records
+                voucher_codes = document.getElementById("voucher_codes");
+                
+                for(var i = 0; i < voucher_codes.children.length; i++) {
+                    record = labelSetBuilder.addRecord();
+                    record.setText("VoucherCode", voucher_codes.children[i].textContent);
+                }
+
+                // first label
+                //var record = labelSetBuilder.addRecord();
+                //record.setText("VoucherCode", "Debug1");
+
+                // second label
+                //record = labelSetBuilder.addRecord();
+                //record.setText("VoucherCode", "Debug2");
+                
+                // finally print the label with default print params
+                label.print(printersSelect.value, "", labelSetBuilder);
+            }
+            catch(e)
+            {
+                alert(e.message || e);
+            }
+        }
+
+        loadPrinters();
+        updatePreview();
+
+    };
+
+    function initTests()
+	{
+		if(dymo.label.framework.init)
+		{
+			//dymo.label.framework.trace = true;
+			dymo.label.framework.init(onload);
+		} else {
+			onload();
+		}
+	}
+
+	// register onload event
+	if (window.addEventListener)
+		window.addEventListener("load", initTests, false);
+	else if (window.attachEvent)
+		window.attachEvent("onload", initTests);
+	else
+		window.onload = initTests;
+
+} ());
+</script>
+{% endif %}
+{% endblock %}
+
+{% block content%}
+{% if printer_type == 'address_labels' %}
+
+    <div class=printerControls">
+        <div id="printersDiv">
+            <label for="printersSelect">Printer:</label>
+            <select id="printersSelect"></select>
+        </div>
+        <div id="printDiv">
+            <button id="printButton">Print to Label printer</button>
+        </div>
+    </div>
+
+
+
+    <div id="labelImageDiv">
+        <img id="labelImage" src="" label="label preview"/>
+    </div>
+
+
+    <div style="display:none" id="voucher_codes">
+        {% for code in codes %}
+            <span>{{code}}</span>
+        {% endfor %}
+    </div>
+
+
+{% else %}
+
+    Print
+    
+    {{printer_type}}
+    
+    {{roll.desciption}}
+    
+    {{roll.id}}
+    
+    {{roll}}
+    
+    {{portal_id}}
+    
+    {{roll_id}}
+    
+    {{quantity}}
+    
+    {{portal.name}}
+    
+    
+    <h2>Vouchers</h2>
+    {% for code in codes %}
+        <p>{{code}}</p>
+    {% endfor %}
+    
+    
+
+{% endif %}
+{% endblock %}
