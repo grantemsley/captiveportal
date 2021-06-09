@@ -35,11 +35,11 @@ def printselection(request, portal_id):
 
         # Validate parameters
         if printer_type not in ('address_labels', 'letter'):
-            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Invalid printer type'})
+            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Invalid printer type', 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
         if (quantity < 1):
-            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Invalid quantity'})
+            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Invalid quantity', 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
         if (quantity > roll.remaining_vouchers()):
-            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Not enough vouchers available.'})
+            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Not enough vouchers available.', 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
             
         # Get only unprinted vouchers from this roll
         vouchers = Voucher.objects.filter(roll=roll.id)
@@ -53,7 +53,7 @@ def printselection(request, portal_id):
 
         return redirect_params(reverse('voucher:print', kwargs={'portal_id': portal_id, 'roll_id': roll_id, 'printer_type': printer_type}), {'v': vouchers})
     else:
-        return render(request, 'voucher/print_selection.html', {'portal':portal,})
+        return render(request, 'voucher/print_selection.html', {'portal':portal,'quantity':5})
 
 def print(request, portal_id, roll_id, printer_type):
     portal = get_object_or_404(Portal, pk=portal_id)
@@ -61,6 +61,7 @@ def print(request, portal_id, roll_id, printer_type):
     
     # Retrieve the vouchers by id, and verify they are ok to print (someone could have altered GET string)
     # Make sure they match the roll, and were marked as printed within the last hour
+    # FIXME - by the current user
     voucherlist = request.GET.getlist('v')
     vouchers = Voucher.objects.filter(id__in=voucherlist)
     vouchers = vouchers.filter(roll=roll.id)
@@ -76,5 +77,9 @@ def print(request, portal_id, roll_id, printer_type):
         'codes': codes,
     }
 
-
-    return render(request, 'voucher/print.html', context)
+    if printer_type == 'address_labels':
+        return render(request, 'voucher/print_dymo.html', context)
+    elif printer_type == 'letter':
+        return render(request, 'voucher/print_letter.html', context)
+    else:
+        return render(request, 'voucher/print_letter.html', context)

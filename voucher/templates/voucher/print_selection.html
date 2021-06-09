@@ -40,7 +40,7 @@
             <td>
                 <select name="roll_id">
                     {% for roll in portal.available_rolls %}
-                        <option value="{{roll.id}}">{{roll.description}} - {{roll.time_limit}} - {{roll.remaining_vouchers}} available</option>
+                        <option {%if roll.id == roll_id %}selected="selected"{%endif%} value="{{roll.id}}">{{roll.description}} - {{roll.time_limit}} - {{roll.remaining_vouchers}} available</option>
                     {% endfor %}
                 </select>
             </td>
@@ -49,14 +49,14 @@
             <th>Printer type</th>
             <td>
                 <select name="printer_type">
-                    <option value="address_labels">Address labels on Dymo Labelwriter</option>
-                    <option value="letter">Letter paper on regular printer</option>
+                    <option {%if printer_type == 'address_labels' %}selected="selected"{%endif%} value="address_labels">Address labels on Dymo Labelwriter</option>
+                    <option {%if printer_type == 'letter' %}selected="selected"{%endif%} value="letter">Letter paper on regular printer</option>
                 </select>
             </td>
         </tr>
         <tr>
             <th>Quantity</th>
-            <td><input type="number" name="quantity" min="1" max="100" value="10" /></td>
+            <td><input type="number" name="quantity" min="1" max="100" value="{{quantity}}" /></td>
         </tr>
     </table>
     <input type="submit" value="Print">

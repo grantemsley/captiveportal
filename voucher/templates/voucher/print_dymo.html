@@ -3,7 +3,6 @@
 
 
 {% block head %}
-{% if printer_type == 'address_labels' %}
 <script type="text/javascript">
 (function()
 {
@@ -123,11 +122,13 @@
 
 } ());
 </script>
-{% endif %}
 {% endblock %}
 
 {% block content%}
-{% if printer_type == 'address_labels' %}
+    <div id="labelImageDiv">
+        <img id="labelImage" src="" label="label preview"/>
+    </div>
+    <p>Printing {{codes|length}} voucher labels</p>
 
     <div class=printerControls">
         <div id="printersDiv">
@@ -141,45 +142,11 @@
 
 
 
-    <div id="labelImageDiv">
-        <img id="labelImage" src="" label="label preview"/>
-    </div>
-
-
     <div style="display:none" id="voucher_codes">
         {% for code in codes %}
             <span>{{code}}</span>
         {% endfor %}
     </div>
 
-
-{% else %}
-
-    Print
-    
-    {{printer_type}}
-    
-    {{roll.desciption}}
-    
-    {{roll.id}}
-    
-    {{roll}}
-    
-    {{portal_id}}
-    
-    {{roll_id}}
-    
-    {{quantity}}
-    
-    {{portal.name}}
-    
-    
-    <h2>Vouchers</h2>
-    {% for code in codes %}
-        <p>{{code}}</p>
-    {% endfor %}
-    
-    
-
-{% endif %}
+    <p><a href="/">Return to index</a></p>
 {% endblock %}
