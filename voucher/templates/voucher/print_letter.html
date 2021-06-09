@@ -1,0 +1,46 @@
+{% extends "voucher/base.html" %}
+{% load static %}
+{% block head %}
+<script src="{% static 'voucher/qrcode.min.js' %}" type="text/javascript" charset="UTF-8"></script>
+{% endblock %}
+
+{% block title %}Voucher Print{% endblock %}
+
+{% block content%}
+{% for code in codes %}
+    <div class="voucher_block">
+        <h1>{{portal.name}}</h1>
+        <table>
+            <tr>
+                <th>Network:</th>
+            </tr><tr>
+                <td>{{portal.ssid}}</td>
+            </tr><tr>
+                <th>Password:</th>
+            </tr><tr>
+                <td>{{portal.psk}}</td>
+            </tr><tr>
+                <th>Voucher Code:</th>
+            </tr><tr>
+                <td>{{code}}</td>
+            </tr><tr>
+                <th>Valid for:</th>
+            </tr><tr>
+                <td>{{roll.time_limit}}</td>
+            </tr>
+        </table> 
+        <div class="rightside">
+            <div class="qr" id="qr-{{forloop.counter}}" rowspan="4"></div>
+            <script type="text/javascript">
+            new QRCode(document.getElementById("qr-{{forloop.counter}}"), {text: "WIFI:T:WPA;S:{{portal.ssid}};P:{{portal.psk}};;", width: 120, height: 120});
+            </script>
+            <p class="info">If not prompted for voucher code, open browser to www.neverssl.com</p>
+        </div>
+
+    </div>
+{% endfor %}
+
+
+
+
+{% endblock %}

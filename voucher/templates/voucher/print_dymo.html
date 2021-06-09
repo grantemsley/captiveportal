@@ -1,8 +1,10 @@
 {% extends "voucher/base.html" %}
+{% load static %}
 {% block title %}Voucher Print{% endblock %}
 
 
 {% block head %}
+<script src="{% static 'voucher/dymo.connect.framework.js' %}" type="text/javascript" charset="UTF-8"></script>
 <script type="text/javascript">
 (function()
 {

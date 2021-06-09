@@ -1,0 +1,36 @@
+.voucher_block {
+    width: 300px;
+    border: 1px solid black;
+    padding: 10px 20px 10px 20px;
+    display: inline-block;
+    clear: both;
+    overflow: auto;
+    page-break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    -webkit-column-break-after: always;
+}
+
+.voucher_block .rightside {
+    float: right;
+    width: 125px;
+}
+
+.voucher_block table {
+    float: left;
+    font-size: large;
+}
+
+.voucher_block th, .voucher_block td {
+    text-align: left;
+}
+
+.voucher_block h1 {
+    text-align: center;
+    margin: 2px;
+}
+
+.voucher_block .info {
+    clear: both;
+    padding-top: 5px;
+    margin-top: 5px;
+}
