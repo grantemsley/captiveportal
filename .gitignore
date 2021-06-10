@@ -3,3 +3,4 @@ db.sqlite3-journal
 *.swo
 *.swp
 *.pyc
+venv/
