@@ -1,18 +1,4 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static 'voucher/style.css' %}">
-    <title>{% block title %}Voucher Printer{% endblock %}</title>
-    {% block head %}{%endblock%}
+{% endblock %}
 
-</head>
-<body>
-
-<div id="content">
-    {% block content %}{% endblock %}
-</div>
-
-
-</body>
-</html>

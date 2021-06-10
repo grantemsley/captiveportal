@@ -9,7 +9,7 @@ from .models import Portal, Roll, Voucher
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
-
+from django.contrib import messages
 
 
 
@@ -33,6 +33,9 @@ class PortalListView(LoginRequiredMixin, generic.ListView):
         groups = self.request.user.groups.values_list('id', flat=True)
         qs = qs.filter(allow_printing__in=groups)
 
+        # Groups query can cause duplicate records.
+        qs = qs.distinct()
+
         return qs
 
 
@@ -41,7 +44,10 @@ def printselection(request, portal_id):
     
     # Make sure the portal is active and user has access.
     groups = request.user.groups.values_list('id', flat=True)
-    portal = get_object_or_404(Portal, pk=portal_id,active=True, allow_printing__in=groups)
+    try:
+        portal = Portal.objects.filter(pk=portal_id,active=True,allow_printing__in=groups).distinct().get()
+    except Portal.DoesNotExist:
+        raise Http404("Portal does not exist")
 
 
     if request.method == 'POST':
@@ -53,11 +59,14 @@ def printselection(request, portal_id):
 
         # Validate parameters
         if printer_type not in ('address_labels', 'letter'):
-            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Invalid printer type', 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
+            messages.add_message(request, messages.ERROR, 'Invalid printer type')
+            return render(request, 'voucher/print_selection.html', {'portal':portal, 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
         if (quantity < 1):
-            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Invalid quantity', 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
+            messages.add_message(request, messages.ERROR, 'Invalid quantity.')
+            return render(request, 'voucher/print_selection.html', {'portal':portal, 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
         if (quantity > roll.remaining_vouchers()):
-            return render(request, 'voucher/print_selection.html', {'portal':portal,'error_message':'Not enough vouchers available.', 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
+            messages.add_message(request, messages.ERROR, 'Not enough vouchers available.')
+            return render(request, 'voucher/print_selection.html', {'portal':portal, 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
             
         # Get only unprinted vouchers from this roll
         vouchers = Voucher.objects.filter(roll=roll.id)
@@ -76,7 +85,10 @@ def printselection(request, portal_id):
 def print(request, portal_id, roll_id, printer_type):
     # Make sure the portal is active and user has access.
     groups = request.user.groups.values_list('id', flat=True)
-    portal = get_object_or_404(Portal, pk=portal_id,active=True, allow_printing__in=groups)
+    try:
+        portal = Portal.objects.filter(pk=portal_id,active=True,allow_printing__in=groups).distinct().get()
+    except Portal.DoesNotExist:
+        raise Http404("Portal does not exist")
 
     roll = get_object_or_404(Roll, pk=roll_id)
     

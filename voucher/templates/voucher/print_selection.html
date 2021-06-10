@@ -1,12 +1,15 @@
-{% extends "voucher/base.html" %}
+{% extends "base.html" %}
+{% load static %}
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static "voucher/style.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/forms.css" %}">
 
+{% endblock %}
 {% block title %}Voucher Type Selection{% endblock %}
 
 {% block content%}
 
-<h1>{{portal.name}}</h1>
-
-<h2>Portal Information:</h2>
+<h1>Portal Information:</h1>
 <table>
     <tr>
         <th>Name:</th>
@@ -26,40 +29,46 @@
     </tr>
 </table>
 
-<h2>Choose vouchers to print:</h2>
+<h1>Choose vouchers to print:</h1>
 {% if portal.available_rolls %}
-    <p>Once you click print the vouchers will be marked as used and cannot be printed again. If you are unsure your printer is working properly, try only printing 1 or 2 vouchers so not many get wasted.</p>
-    {% if error_message %}
-        <p><strong>{{error_message}}</strong></p>
-    {% endif %}
     <form action="" method="POST">
     {%csrf_token%}
-    <table>
-        <tr>
-            <th>Voucher type</th>
-            <td>
-                <select name="roll_id">
-                    {% for roll in portal.available_rolls %}
-                        <option {%if roll.id == roll_id %}selected="selected"{%endif%} value="{{roll.id}}">{{roll.description}} - {{roll.time_limit}} - {{roll.remaining_vouchers}} available</option>
-                    {% endfor %}
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <th>Printer type</th>
-            <td>
-                <select name="printer_type">
-                    <option {%if printer_type == 'address_labels' %}selected="selected"{%endif%} value="address_labels">Address labels on Dymo Labelwriter</option>
-                    <option {%if printer_type == 'letter' %}selected="selected"{%endif%} value="letter">Letter paper on regular printer, 6 per page.</option>
-                </select>
-            </td>
-        </tr>
-        <tr>
-            <th>Quantity</th>
-            <td><input type="number" name="quantity" min="1" max="100" value="{{quantity}}" /></td>
-        </tr>
-    </table>
-    <input type="submit" value="Print">
+    <div>
+        <fieldset class="module aligned">
+            <h2>Choose vouchers to print</h2>
+            <div class="form-row field-roll">
+                <div>
+                    <label class="required" for="roll_id">Voucher type</label>
+                    <select id="roll_id" name="roll_id">
+                       {% for roll in portal.available_rolls %}
+                            <option {%if roll.id == roll_id %}selected="selected"{%endif%} value="{{roll.id}}">{{roll.description}} - {{roll.time_limit}} - {{roll.remaining_vouchers}} available</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="form-row field-printer-type">
+                <div>
+                    <label class="required" for="printer_type">Printer type</label>
+                    <select name="printer_type">
+                        <option {%if printer_type == 'address_labels' %}selected="selected"{%endif%} value="address_labels">Address labels on Dymo Labelwriter</option>
+                        <option {%if printer_type == 'letter' %}selected="selected"{%endif%} value="letter">Letter paper on regular printer, 6 per page.</option>
+                    </select>
+                </div>
+            </div>
+            <div class="form-row field-quantity">
+                <div>
+                    <label class="required" for="quantity">Quantity</label>
+                    <input type="number" name="quantity" id="quantity" min="1" max="100" value="{{quantity}}" />
+                    <div class="help">Once you click print the vouchers will be marked as used and cannot be printed again. 
+                        If you are unsure your printer is working properly, try only printing 1 or 2 vouchers so not many get wasted.
+                    </div>
+                </div>
+            </div>
+        </fieldset>
+        <div class="submit-row">
+            <input type="submit" value="Print">
+        </div>
+    </div> 
     </form>
 {% else %}
     <p>No voucher types are available for this portal. Please ask IT to issue more vouchers.</p>

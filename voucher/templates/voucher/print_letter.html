@@ -1,12 +1,12 @@
-{% extends "voucher/base.html" %}
-{% load static %}
-{% block head %}
-<script src="{% static 'voucher/qrcode.min.js' %}" type="text/javascript" charset="UTF-8"></script>
-{% endblock %}
-
-{% block title %}Voucher Print{% endblock %}
-
-{% block content%}
+{%load static %}
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <title>Vouchers</title>
+    <link rel="stylesheet" type="text/css" href="{% static "voucher/style.css" %}">
+    <script src="{% static 'voucher/qrcode.min.js' %}" type="text/javascript" charset="UTF-8"></script>
+</head>
+<body>
 {% for code in codes %}
     <div class="voucher_block">
         <h1>{{portal.name}}</h1>
@@ -34,13 +34,10 @@
             <script type="text/javascript">
             new QRCode(document.getElementById("qr-{{forloop.counter}}"), {text: "WIFI:T:WPA;S:{{portal.ssid}};P:{{portal.psk}};;", width: 120, height: 120});
             </script>
-            <p class="info">If not prompted for voucher code, open browser to www.neverssl.com</p>
+            <p class="info">If not prompted for voucher code, open web browser to www.neverssl.com</p>
         </div>
 
     </div>
 {% endfor %}
-
-
-
-
-{% endblock %}
+</body>
+</html>

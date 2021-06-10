@@ -1,6 +1,11 @@
-{% extends "voucher/base.html" %}
+{% extends "base.html" %}
 {% load static %}
 {% block title %}Voucher Print{% endblock %}
+
+{% block extrastyle %}
+<link rel="stylesheet" type="text/css" href="{% static "voucher/style.css" %}">
+<link rel="stylesheet" type="text/css" href="{% static "css/forms.css" %}">
+{% endblock %}
 
 
 {% block head %}
@@ -127,21 +132,31 @@
 {% endblock %}
 
 {% block content%}
-    <div id="labelImageDiv">
-        <img id="labelImage" src="" label="label preview"/>
-    </div>
-    <p>Printing {{codes|length}} voucher labels</p>
-
-    <div class=printerControls">
-        <div id="printersDiv">
-            <label for="printersSelect">Printer:</label>
-            <select id="printersSelect"></select>
+    <fieldset class="module aligned">
+        <div class="form-row">
+            <div id="labelImageDiv">
+                <img id="labelImage" src="" label="label preview"/>
+            </div>
         </div>
-        <div id="printDiv">
-            <button id="printButton">Print to Label printer</button>
+        <div class="form-row">
+            <div>
+                <label for="quantity">Printing:</label>
+                <p id="quantity">{{codes|length}} voucher labels</p>
+            </div>
         </div>
-    </div>
-
+        <div class="form-row">
+            <div id="printersDiv">
+                <label for="printersSelect">Label Printer:</label>
+                    <select id="printersSelect"></select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div>
+                <label for="printButton"></label>
+                <button class="button" id="printButton">Print to Label printer</button>
+            </div>
+        </div>
+    </fieldset>
 
 
     <div style="display:none" id="voucher_codes">
@@ -150,5 +165,4 @@
         {% endfor %}
     </div>
 
-    <p><a href="/">Return to index</a></p>
 {% endblock %}
