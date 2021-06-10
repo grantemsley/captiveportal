@@ -27,7 +27,7 @@ class Roll(models.Model):
     voucher_csv = models.FileField(null=True,blank=True)
 
     def __str__(self):
-        return "%s roll %s" %(self.portal.name, self.number)
+        return "%s - %s" %(self.portal.name, self.description)
 
     def save(self, *args, **kwargs):
         """Save the database record and file, then process the file and delete it."""
@@ -60,3 +60,6 @@ class Voucher(models.Model):
     code = models.CharField(max_length=30, unique=True)
     date_printed = models.DateTimeField('date printed', null=True, blank=True)
     printed_by = models.CharField(max_length=200, blank=True)
+
+    def portal(self):
+        return self.roll.portal.name

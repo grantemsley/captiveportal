@@ -7,6 +7,14 @@
 <link rel="stylesheet" type="text/css" href="{% static "css/forms.css" %}">
 {% endblock %}
 
+{% block breadcrumbs %}
+<div class="breadcrumbs">
+<a href="/">Home</a>
+&rsaquo; <a href="{% url 'voucher:portal' portal.pk %}">{{ portal.name }}</a>
+&rsaquo; <span>Print</span>
+</div>
+{% endblock %}
+
 
 {% block head %}
 <script src="{% static 'voucher/dymo.connect.framework.js' %}" type="text/javascript" charset="UTF-8"></script>

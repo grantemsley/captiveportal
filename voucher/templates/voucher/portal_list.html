@@ -1,15 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Portal Selection{% endblock %}
 {% block extrastyle %}
     <link rel="stylesheet" type="text/css" href="{% static 'voucher/style.css' %}">
 {% endblock %}
 
 
 {% block content%}
-
-
 <h1>Choose Portal:</h1>
 {% if object_list %}
     <ul>
@@ -20,7 +17,5 @@
 {% else %}
     <p>No portals are configured or you do not have permissions to any portal.</p>
 {% endif %}
-
-
 {% endblock %}
 
