@@ -1,7 +1,7 @@
 #!/bin/sh
 # Load SECRET_KEY from /data/settings if not already in environment.
 
-if [ ! -z "${SECRET_KEY}" ]; then
+if [ -z "${SECRET_KEY}" ]; then
     set -a
     . /data/settings
 fi
