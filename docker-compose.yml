@@ -1,0 +1,35 @@
+version: '3.4'
+services:
+    web:
+        build:
+            context: .
+        depends_on:
+            - db
+        environment:
+            # ALLOWED_HOSTS is a comma separated list of hostnames the server will use
+            - "ALLOWED_HOSTS=linuxserver,linuxtest"
+            # If DATABASE_URL not specified, will use an sqlite3 database in /data
+            # Format documented at https://github.com/kennethreitz/dj-database-url
+            - "DATABASE_URL=postgres://postgres@db/postgres"
+            # Enable debug mode for django
+            - "DEBUG=true"
+            # Set initial super user's password. USERNAME, PASSWORD and EMAIL must all be specified.
+            # Changes here will not change an existing superuser's password. 
+            - "SUPERUSER_USERNAME=admin"
+            - "SUPERUSER_PASSWORD=password"
+            - "SUPERUSER_EMAIL=fake@email.com"
+            # Set the timezone inside Django
+            - "TIME_ZONE=America/Toronto"
+        ports:
+            - "8080:8080"
+        volumes:
+            # /data contains the settings file to store secret_key, and the sqlite3 file if not using an external database.
+            - ~/data:/data
+
+    db:
+        image: "postgres:11"
+        environment:
+            - "POSTGRES_HOST_AUTH_METHOD=trust"
+        volumes:
+            - ~/postgres:/var/lib/postgresql/data/
+

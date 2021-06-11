@@ -19,7 +19,7 @@ COPY nginx.default /etc/nginx/nginx.conf
 RUN chown -R nobody:nogroup /var/lib/nginx && chown -R nobody:nogroup /var/log/nginx
 
 COPY entrypoint.sh ./
-COPY ./captiveportal ./captiveportal/
+COPY ./captiveportal ./
 RUN chown -R nobody:nogroup /app
 
 RUN mkdir /data && chown nobody:nogroup /data

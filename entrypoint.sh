@@ -1,25 +1,26 @@
 #!/bin/sh
 
-#if [ -n "$DJANGO_SUPERUSER_USERNAME"] && [ -n "$DJANGO_SUPERUSER_PASSWORD"]; then
-#    (cd /app/captiveportal; python manage.py createsuperuser --no-input)
-#fi
-
 set -e # exit on errors
 
-cd /app/captiveportal
+cd /app
 
+# If there is no SECRET_KEY, and the settings file is missing, do initial setup
+if [ -z "${SECRET_KEY}" ]; then
+    echo "SECRET_KEY not specified in environment, checking /data/settings"
 
-# If the settings file is missing, do initial setup
-if [ ! -f "/data/settings" ]; then
-    # First run, generate random secret_key
-    export SECRET_KEY=$(dd if=/dev/urandom bs=60 count=1 2>/dev/null | base64 | head -n 1)
-    echo "SECRET_KEY=\"$SECRET_KEY\"" > /data/settings
+    if [ ! -f "/data/settings" ]; then
+        echo "Generating new SECRET_KEY and saving to /data/settings"
+        # First run, generate random secret_key
+        export SECRET_KEY=$(dd if=/dev/urandom bs=60 count=1 2>/dev/null | base64 | head -n 1)
+        echo "SECRET_KEY=\"$SECRET_KEY\"" > /data/settings
+    fi
+
+    echo "Loading SECRET_KEY from /data/settings"
+    # Import environment variables from settings file
+    set -a
+    . /data/settings
+    set +a
 fi
-
-# Import environment variables from settings file
-set -a
-. /data/settings
-set +a
 
 python manage.py collectstatic --no-input
 python manage.py migrate

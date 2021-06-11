@@ -31,7 +31,7 @@ http {
         }
     
         location /static {
-            root /app/captiveportal;
+            root /app;
         }
 
         location /healthcheck {
