@@ -1,4 +1,4 @@
 #!/bin/sh
 set -a
-source /data/settings
+. /data/settings
 python manage.py "$@"
