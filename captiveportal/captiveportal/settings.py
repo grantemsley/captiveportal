@@ -29,6 +29,12 @@ DEBUG = env.bool("DEBUG", default=False)
 
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=['*'])
 
+SECURE_HSTS_SECONDS = env.int("SECURE_HSTS_SECONDS", default=1)
+SESSION_COOKIE_SECURE = env.bool("SECURE_COOKIES", default=False)
+CSRF_COOKIE_SECURE = env.bool("SECURE_COOKIES", default=False)
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 # Application definition
 
 INSTALLED_APPS = [

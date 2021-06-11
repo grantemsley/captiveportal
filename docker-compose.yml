@@ -20,6 +20,9 @@ services:
             - "SUPERUSER_EMAIL=fake@email.com"
             # Set the timezone inside Django
             - "TIME_ZONE=America/Toronto"
+            # If behind a proxy like traefik, you can enable secure cookies and HSTS
+            - SECURE_HSTS_SECONDS=0
+            - SECURE_COOKIES=False
         ports:
             - "8080:8080"
         volumes:
