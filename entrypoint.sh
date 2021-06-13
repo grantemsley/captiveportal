@@ -4,23 +4,24 @@ set -e # exit on errors
 
 cd /app
 
-# If there is no SECRET_KEY, and the settings file is missing, do initial setup
-if [ -z "${SECRET_KEY}" ]; then
-    echo "SECRET_KEY not specified in environment, checking /data/settings"
-
-    if [ ! -f "/data/settings" ]; then
-        echo "Generating new SECRET_KEY and saving to /data/settings"
-        # First run, generate random secret_key
-        export SECRET_KEY=$(dd if=/dev/urandom bs=60 count=1 2>/dev/null | base64 | head -n 1)
-        echo "SECRET_KEY=\"$SECRET_KEY\"" > /data/settings
-    fi
-
-    echo "Loading SECRET_KEY from /data/settings"
-    # Import environment variables from settings file
-    set -a
-    . /data/settings
-    set +a
+# Local configuration is stored in /data/local_settings.py, and imported by settings.py
+# By default the only important setting it will contain is SECRET_KEY, but additional advanced
+# settings can be configured or overridden there.
+if [ ! -f "/data/local_settings.py" ]; then
+    echo "Generating /data/local_settings.py"
+    SECRET_KEY=$(dd if=/dev/urandom bs=60 count=1 2>/dev/null | base64 | head -n 1)
+    cp local_settings.template /data/local_settings.py
+    sed -i "s|^SECRET_KEY .*\$|SECRET_KEY = \"${SECRET_KEY}\"|" /data/local_settings.py
 fi
+
+if [ ! -f "/data/local_urls.py" ]; then
+    echo "Creating initial /data/local_urls.py file"
+    cp local_urls.template /data/local_urls.py
+fi
+
+# Link local files to the appropriate places inside the app directory
+ln -s /data/local_settings.py /app/captiveportal/local_settings.py || true
+ln -s /data/local_urls.py /app/captiveportal/local_urls.py || true
 
 python manage.py collectstatic --no-input
 python manage.py migrate

@@ -21,9 +21,6 @@ STATIC_ROOT = str(BASE_DIR.joinpath("static"))
 STATIC_URL = '/static/'
 MEDIA_ROOT = str(BASE_DIR.joinpath("files"))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env("SECRET_KEY")
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool("DEBUG", default=False)
 
@@ -126,3 +123,13 @@ USE_TZ = True
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 DATA_UPLOAD_MAX_NUMBER_FIELDS = None
+
+# Based on http://www.robgolding.com/blog/2010/05/03/extending-settings-variables-with-local_settings-py-in-django/
+# Will load local_settings.py (symlinked from /data), which reimports this file so it's settings can be adjusted as desired.
+try:
+    LOCAL_SETTINGS
+except NameError:
+    try:
+        from .local_settings import *
+    except:
+        raise "Could not import local_settings.py. Configuration is likely invalid."

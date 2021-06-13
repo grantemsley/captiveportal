@@ -15,6 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from .local_urls import urlpatterns as local_urls
 
 admin.site.site_header = 'Captive Portal Voucher Manager'
 admin.site.site_title = 'Captive Portal Voucher Manager'
@@ -24,3 +25,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('accounts/', include('django.contrib.auth.urls')),
 ]
+
+urlpatterns += local_urls

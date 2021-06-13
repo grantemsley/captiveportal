@@ -1,0 +1,28 @@
+# Prevent looping between settings and local_settings
+LOCAL_SETTINGS = True
+# Import existing settings so they can be altered here
+from .settings import *
+
+# Automatically generated SECRET_KEY
+SECRET_KEY = "replace me"
+
+
+# Additional local settings configured here.
+
+#------------------------ Enable DEBUG_TOOLBAR ------------------------
+"""
+# Additional local settings configured here.
+INSTALLED_APPS += ('debug_toolbar',)
+
+MIDDLEWARE += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+
+# Because figuring out INTERNAL_IPS behind traefik and nginx is hard, just enable it globally.
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CALLBACK': lambda request: not request.is_ajax()
+}
+
+# Also enable section in local_urls.py
+"""
+
+
+
