@@ -94,14 +94,6 @@
                     record.setText("VoucherCode", voucher_codes.children[i].textContent);
                 }
 
-                // first label
-                //var record = labelSetBuilder.addRecord();
-                //record.setText("VoucherCode", "Debug1");
-
-                // second label
-                //record = labelSetBuilder.addRecord();
-                //record.setText("VoucherCode", "Debug2");
-                
                 // finally print the label with default print params
                 label.print(printersSelect.value, "", labelSetBuilder);
             }
