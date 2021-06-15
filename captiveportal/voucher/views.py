@@ -5,7 +5,7 @@ from django.views import generic
 import datetime
 from django.utils import timezone
 from urllib.parse import urlencode
-from .models import Portal, Roll, Voucher
+from .models import Portal, Roll, Voucher, PrintTemplate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
@@ -51,22 +51,20 @@ def printselection(request, portal_id):
 
 
     if request.method == 'POST':
-        printer_type = request.POST['printer_type']
+        printtemplate_id = request.POST['printtemplate_id']
         quantity = int(request.POST['quantity'])
         roll_id = int(request.POST['roll_id'])
 
         roll = get_object_or_404(Roll, pk=roll_id)
+        printtemplate = get_object_or_404(PrintTemplate, pk=printtemplate_id)
 
         # Validate parameters
-        if printer_type not in ('address_labels', 'letter'):
-            messages.add_message(request, messages.ERROR, 'Invalid printer type')
-            return render(request, 'voucher/print_selection.html', {'portal':portal, 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
         if (quantity < 1):
             messages.add_message(request, messages.ERROR, 'Invalid quantity.')
-            return render(request, 'voucher/print_selection.html', {'portal':portal, 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
+            return render(request, 'voucher/print_selection.html', {'portal':portal, 'printtemplate_id':printtemplate_id, 'quantity':quantity, 'roll_id': roll_id})
         if (quantity > roll.remaining_vouchers()):
             messages.add_message(request, messages.ERROR, 'Not enough vouchers available.')
-            return render(request, 'voucher/print_selection.html', {'portal':portal, 'printer_type':printer_type, 'quantity':quantity, 'roll_id': roll_id})
+            return render(request, 'voucher/print_selection.html', {'portal':portal, 'printtemplate_id':printtemplate_id, 'quantity':quantity, 'roll_id': roll_id})
             
         # Get only unprinted vouchers from this roll
         vouchers = Voucher.objects.filter(roll=roll.id)
@@ -77,12 +75,12 @@ def printselection(request, portal_id):
         # Mark these vouchers as printed
         Voucher.objects.filter(id__in=vouchers).update(date_printed=timezone.now(),printed_by=request.user.get_username())
 
-        return redirect_params(reverse('voucher:print', kwargs={'portal_id': portal_id, 'roll_id': roll_id, 'printer_type': printer_type}), {'v': vouchers})
+        return redirect_params(reverse('voucher:print', kwargs={'portal_id': portal_id, 'roll_id': roll_id, 'printtemplate_id': printtemplate_id}), {'v': vouchers})
     else:
         return render(request, 'voucher/print_selection.html', {'portal':portal,'quantity':5})
 
 @login_required
-def print(request, portal_id, roll_id, printer_type):
+def print(request, portal_id, roll_id, printtemplate_id):
     # Make sure the portal is active and user has access.
     groups = request.user.groups.values_list('id', flat=True)
     try:
@@ -91,6 +89,7 @@ def print(request, portal_id, roll_id, printer_type):
         raise Http404("Portal does not exist")
 
     roll = get_object_or_404(Roll, pk=roll_id)
+    printtemplate = get_object_or_404(PrintTemplate, pk=printtemplate_id)
     
     # Retrieve the vouchers by id, and verify they are ok to print (someone could have altered GET string)
     # Make sure they match the roll, and were marked as printed within the last hour
@@ -101,17 +100,17 @@ def print(request, portal_id, roll_id, printer_type):
     last_hour = timezone.now() - datetime.timedelta(hours=1)
     vouchers = vouchers.filter(date_printed__gt=last_hour)
     codes = list(vouchers.values_list('code', flat=True))
-    
+
     context = {
         'roll': roll,
         'portal': portal,
-        'printer_type': printer_type,
+        'printtemplate': printtemplate,
         'codes': codes,
     }
 
-    if printer_type == 'address_labels':
+    if printtemplate.type == "Paper":
+        return render(request, 'voucher/print_paper.html', context)
+    elif printtemplate.type == "Dymo":
         return render(request, 'voucher/print_dymo.html', context)
-    elif printer_type == 'letter':
-        return render(request, 'voucher/print_letter.html', context)
     else:
-        return render(request, 'voucher/print_letter.html', context)
+        raise Http404("Invalid print template type")    

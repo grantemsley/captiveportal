@@ -55,10 +55,11 @@
             </div>
             <div class="form-row field-printer-type">
                 <div>
-                    <label class="required" for="printer_type">Printer type</label>
-                    <select name="printer_type">
-                        <option {%if printer_type == 'address_labels' %}selected="selected"{%endif%} value="address_labels">Address labels on Dymo Labelwriter</option>
-                        <option {%if printer_type == 'letter' %}selected="selected"{%endif%} value="letter">Letter paper on regular printer, 6 per page.</option>
+                    <label class="required" for="printtemplate_id">Print template</label>
+                    <select name="printtemplate_id">
+                        {% for template in portal.print_templates.all %}
+                            <option {% if printtemplate_id == template.id %}selected="selected"{%endif%} value="{{template.id}}">{{template.name}}</option>
+                        {% endfor %}
                     </select>
                 </div>
             </div>

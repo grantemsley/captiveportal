@@ -23,7 +23,7 @@
 {
 
     // Note: Dymo has a bug where you need to have a space between the <Color blah> and </Color> tags or it throws an error.
-    var labelxml = `{% include "voucher/label.xml" %}`;
+    var labelxml = `{{printtemplate.template|safe}}`;
 
     var label = dymo.label.framework.openLabelXml(labelxml);
     label.setObjectText("PortalName", "{{ portal.name }}");

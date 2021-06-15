@@ -1,0 +1,22 @@
+{%load static %}
+{%load voucher %}
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+    <title>Vouchers</title>
+    <link rel="stylesheet" type="text/css" href="{% static "voucher/style.css" %}">
+    <script src="{% static 'voucher/qrcode.min.js' %}" type="text/javascript" charset="UTF-8"></script>
+
+    <script type="text/javascript">
+        window.onload = function() {
+            window.print();
+        }
+    </script>
+
+</head>
+<body>
+{% for code in codes %}
+    {% voucher printtemplate.template code forloop.counter %}
+{% endfor %}
+</body>
+</html>

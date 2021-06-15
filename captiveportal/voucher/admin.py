@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Portal, Roll, Voucher
+from .models import Portal, Roll, Voucher, PrintTemplate
 
 
 class VoucherInline(admin.TabularInline):
@@ -24,8 +24,12 @@ class VoucherAdmin(admin.ModelAdmin):
         'roll',
     )
 
+class TemplateAdmin(admin.ModelAdmin):
+    list_display = ('name', 'type')
+
 
 admin.site.register(Portal, PortalAdmin)
 admin.site.register(Roll, RollAdmin)
 admin.site.register(Voucher, VoucherAdmin)
+admin.site.register(PrintTemplate, TemplateAdmin)
 
