@@ -1,8 +1,7 @@
 version: '3.4'
 services:
     web:
-        build:
-            context: .
+        image: grantemsley/captiveportal:latest
         depends_on:
             - db
         environment:
