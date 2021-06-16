@@ -25,4 +25,54 @@ DEBUG_TOOLBAR_CONFIG = {
 """
 
 
+#---------------------- Enable LDAP Authentication -------------------
 
+# You'll need to customize the settings below for your LDAP/AD server.
+# For documentation see https://django-auth-ldap.readthedocs.io/en/latest/
+#
+# Once users login the first time, their groups will be created in the admin site,
+# so you can add them to portals.
+"""
+import ldap
+from django_auth_ldap.config import LDAPSearch, NestedActiveDirectoryGroupType
+
+AUTHENTICATION_BACKENDS = (
+    'django_auth_ldap.backend.LDAPBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+AUTH_LDAP_SERVER_URI = "ldap://YOUR-LDAP-SERVER"
+AUTH_LDAP_START_TLS = True
+# Presumably the container doesn't have your org's root certificate, so ignore certificate errors.
+AUTH_LDAP_GLOBAL_OPTIONS = {
+    ldap.OPT_X_TLS_REQUIRE_CERT: ldap.OPT_X_TLS_NEVER,
+}
+AUTH_LDAP_CONNECTION_OPTIONS = {ldap.OPT_REFERRALS: 0} # Fixes https://stackoverflow.com/questions/18793040/python-ldap-not-able-to-bind-successfully
+AUTH_LDAP_BIND_DN = ""
+AUTH_LDAP_BIND_PASSWORD = ''
+AUTH_LDAP_USER_SEARCH = LDAPSearch("DC=YOUR,DC=DOMAIN,DC=HERE", ldap.SCOPE_SUBTREE, "(sAMAccountName=%(user)s)")
+AUTH_LDAP_USER_ATTR_MAP = {
+    "username": "sAMAccountName",
+    "first_name": "givenName",
+    "last_name": "sn",
+    "email": "mail",
+}
+
+AUTH_LDAP_GROUP_SEARCH = LDAPSearch("DC=YOUR,DC=DOMAIN,DC=HERE", ldap.SCOPE_SUBTREE, "(objectCategory=Group)")
+AUTH_LDAP_GROUP_TYPE = NestedActiveDirectoryGroupType(name_attr="cn")
+AUTH_LDAP_USER_FLAGS_BY_GROUP = {
+    "is_superuser": "CN=VoucherSuperUsers,CN=Users,DC=YOUR,DC=DOMAIN,DC=HERE",
+    "is_staff": "CN=VoucherStaff,CN=Users,DC=YOUR,DC=DOMAIN,DC=HERE",
+}
+AUTH_LDAP_FIND_GROUP_PERMS = True
+AUTH_LDAP_MIRROR_GROUPS = True
+AUTH_LDAP_CACHE_TIMEOUT = 3600 # 1 hour cache
+
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "handlers": {"console": {"class": "logging.StreamHandler"}},
+    "loggers": {"django_auth_ldap": {"level": "WARNING", "handlers": ["console"]}},
+}
+"""

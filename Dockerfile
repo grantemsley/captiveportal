@@ -1,6 +1,6 @@
 FROM python:slim AS compile-image
 
-RUN apt-get update && apt-get install -y --no-install-recommends build-essential libldap2-dev libsasl2-dev libssl-dev gcc && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends build-essential libldap2-dev libsasl2-dev libssl-dev gcc xmlsec1 && rm -rf /var/lib/apt/lists/*
 
 RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH" 
@@ -22,7 +22,7 @@ WORKDIR /app
 ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
-RUN apt-get update && apt-get install -y --no-install-recommends nginx libldap2-dev libssl-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends nginx libldap2-dev libssl-dev libsasl2-dev xmlsec1 && rm -rf /var/lib/apt/lists/*
 
 COPY nginx.default /etc/nginx/nginx.conf
 RUN chown -R nobody:nogroup /var/lib/nginx && chown -R nobody:nogroup /var/log/nginx

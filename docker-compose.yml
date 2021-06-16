@@ -7,7 +7,7 @@ services:
             - db
         environment:
             # ALLOWED_HOSTS is a comma separated list of hostnames the server will use
-            - "ALLOWED_HOSTS=linuxserver,linuxtest"
+            - "ALLOWED_HOSTS=hostname1,hostname2"
             # If DATABASE_URL not specified, will use an sqlite3 database in /data
             # Format documented at https://github.com/kennethreitz/dj-database-url
             - "DATABASE_URL=postgres://postgres@db/postgres"
